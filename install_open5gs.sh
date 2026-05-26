@@ -12,19 +12,45 @@ BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "=== Starting Open5GS Installation ==="
 
-# 1. Update and install dependencies
-echo "$PASS" | sudo -S apt update
-echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y gnupg python3-pip python3-setuptools python3-wheel ninja-build gcc g++ flex bison git cmake libgnutls28-dev libgcrypt20-dev libssl-dev libidn11-dev libmongoc-dev libyaml-dev libnghttp2-dev libmicrohttpd-dev libcurl4-openssl-dev screen curl meson libsctp-dev libtalloc-dev
+# 1. Check and install system dependencies
+echo "Checking system dependencies..."
+REQUIRED_PKGS=(gnupg python3-pip python3-setuptools python3-wheel ninja-build gcc g++ flex bison git cmake libgnutls28-dev libgcrypt20-dev libssl-dev libidn11-dev libmongoc-dev libyaml-dev libnghttp2-dev libmicrohttpd-dev libcurl4-openssl-dev screen curl meson libsctp-dev libtalloc-dev)
+MISSING_PKGS=()
 
-# 2. Add MongoDB repository dynamically based on Ubuntu version
-curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor --batch --yes
-CODENAME=$(lsb_release -cs)
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+for pkg in "${REQUIRED_PKGS[@]}"; do
+  if ! dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "ok installed"; then
+    MISSING_PKGS+=("$pkg")
+  fi
+done
 
-echo "$PASS" | sudo -S apt update
-echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y mongodb-org
-echo "$PASS" | sudo -S systemctl daemon-reload
-echo "$PASS" | sudo -S systemctl enable --now mongod
+if [ ${#MISSING_PKGS[@]} -gt 0 ]; then
+  echo "Installing missing dependencies: ${MISSING_PKGS[*]}..."
+  echo "$PASS" | sudo -S apt update || true
+  if ! echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y "${MISSING_PKGS[@]}"; then
+    echo "⚠️ Warning: apt install failed. This might be due to unrelated broken packages (e.g. DKMS) on your system."
+    echo "Attempting to continue anyway..."
+  fi
+else
+  echo "✅ All required system packages are already installed."
+fi
+
+# 2. Add MongoDB repository and install if not present
+if ! dpkg-query -W -f='${Status}' mongodb-org 2>/dev/null | grep -q "ok installed"; then
+  echo "MongoDB not found. Registering repository and installing..."
+  curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor --batch --yes
+  CODENAME=$(lsb_release -cs)
+  echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+  echo "$PASS" | sudo -S apt update || true
+  if ! echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y mongodb-org; then
+    echo "⚠️ Warning: MongoDB installation returned an error. We will try to proceed..."
+  fi
+else
+  echo "✅ mongodb-org is already installed."
+fi
+
+# Ensure MongoDB service is enabled and started
+echo "$PASS" | sudo -S systemctl daemon-reload || true
+echo "$PASS" | sudo -S systemctl enable --now mongod || true
 
 # Wait for MongoDB to start up
 echo "Waiting for MongoDB to start..."
