@@ -48,15 +48,18 @@ AUTO_NODE_IP=$(ip -o -4 addr show dev "$INF" | awk '{print $4}' | cut -d/ -f1 | 
 # Local base node IP
 NODE_IP="${NODE_IP:-$AUTO_NODE_IP}"
 
-# Virtual IP to bind VNF (defaults to node_ip with last octet incremented by 1)
-if [ -z "${VNF_VI_IP:-}" ]; then
-  if [ -n "$NODE_IP" ]; then
-    BASE_IP=$(echo "$NODE_IP" | cut -d. -f1-3)
-    LAST_OCTET=$(echo "$NODE_IP" | cut -d. -f4)
-    NEXT_OCTET=$((LAST_OCTET + 1))
-    VNF_VI_IP="${BASE_IP}.${NEXT_OCTET}"
-  else
-    VNF_VI_IP="192.168.8.27"
+# Virtual IP to bind VNF (only needed in external mode, defaults to node_ip with last octet incremented by 1)
+VNF_VI_IP=""
+if [ "$MODE" = "external" ]; then
+  if [ -z "${VNF_VI_IP:-}" ]; then
+    if [ -n "$NODE_IP" ]; then
+      BASE_IP=$(echo "$NODE_IP" | cut -d. -f1-3)
+      LAST_OCTET=$(echo "$NODE_IP" | cut -d. -f4)
+      NEXT_OCTET=$((LAST_OCTET + 1))
+      VNF_VI_IP="${BASE_IP}.${NEXT_OCTET}"
+    else
+      VNF_VI_IP="192.168.1.200"
+    fi
   fi
 fi
 
@@ -64,7 +67,9 @@ TUN_IP="10.45.0.1"
 
 echo "Using network interface: $INF"
 echo "Primary node IP:         $NODE_IP"
-echo "VNF Virtual IP:          $VNF_VI_IP"
+if [ "$MODE" = "external" ]; then
+  echo "VNF Virtual IP:          $VNF_VI_IP"
+fi
 echo "Base Directory:          $BASE_DIR"
 
 # Generate actual config file from template based on MODE

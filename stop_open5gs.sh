@@ -35,7 +35,7 @@ if [ -z "${VNF_VI_IP:-}" ]; then
     NEXT_OCTET=$((LAST_OCTET + 1))
     VNF_VI_IP="${BASE_IP}.${NEXT_OCTET}"
   else
-    VNF_VI_IP="192.168.8.27"
+    VNF_VI_IP="192.168.1.200"
   fi
 fi
 
@@ -65,8 +65,6 @@ if [ -n "$VNF_VI_IP" ] && [ -n "$INF" ]; then
   if ip addr show "${INF}" | grep -q "${VNF_VI_IP}"; then
     echo "  > Removing virtual IP ${VNF_VI_IP} from ${INF}..."
     echo "$PASS" | sudo -S ip addr del "${VNF_VI_IP}/24" dev "${INF}" 2>/dev/null || true
-  else
-    echo "  > No virtual IP found on ${INF}"
   fi
 fi
 
