@@ -5,7 +5,7 @@ set -euo pipefail
 # 0. Configuration Variables
 # ==========================================
 # Define system sudo password variable
-PASSWORD="bmwlab"
+PASS="bmwlab"
 
 # Define Base Directory (dynamically gets the script's directory)
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -13,18 +13,18 @@ BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "=== Starting Open5GS Installation ==="
 
 # 1. Update and install dependencies
-echo "$PASSWORD" | sudo -S apt update
-echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y gnupg python3-pip python3-setuptools python3-wheel ninja-build gcc g++ flex bison git cmake libgnutls28-dev libgcrypt20-dev libssl-dev libidn11-dev libmongoc-dev libyaml-dev libnghttp2-dev libmicrohttpd-dev libcurl4-openssl-dev screen curl meson libsctp-dev libtalloc-dev
+echo "$PASS" | sudo -S apt update
+echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y gnupg python3-pip python3-setuptools python3-wheel ninja-build gcc g++ flex bison git cmake libgnutls28-dev libgcrypt20-dev libssl-dev libidn11-dev libmongoc-dev libyaml-dev libnghttp2-dev libmicrohttpd-dev libcurl4-openssl-dev screen curl meson libsctp-dev libtalloc-dev
 
 # 2. Add MongoDB repository dynamically based on Ubuntu version
 curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor --batch --yes
 CODENAME=$(lsb_release -cs)
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/8.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.0.list
 
-echo "$PASSWORD" | sudo -S apt update
-echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y mongodb-org
-echo "$PASSWORD" | sudo -S systemctl daemon-reload
-echo "$PASSWORD" | sudo -S systemctl enable --now mongod
+echo "$PASS" | sudo -S apt update
+echo "$PASS" | sudo -S DEBIAN_FRONTEND=noninteractive apt install -y mongodb-org
+echo "$PASS" | sudo -S systemctl daemon-reload
+echo "$PASS" | sudo -S systemctl enable --now mongod
 
 # Wait for MongoDB to start up
 echo "Waiting for MongoDB to start..."
@@ -60,7 +60,7 @@ db.subscribers.insertMany([
   {"_id": ObjectId('690b00666899d828c24e07da'), "ambr": {"downlink": {"value": 1, "unit": 3}, "uplink": {"value": 1, "unit": 3}}, "schema_version": 1, "msisdn": [], "imeisv": "6754567890123413", "mme_host": [], "mme_realm": [], "purge_flag": [], "access_restriction_data": 32, "subscriber_status": 0, "operator_determined_barring": 0, "network_access_mode": 0, "subscribed_rau_tau_timer": 12, "imsi": "001010000062651", "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "amf": "8000", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "sqn": NumberLong('832')}, "slice": [{"_id": ObjectId('690b00666899d828c24e07db'), "sst": 1, "default_indicator": true, "session": [{"qos": {"arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 1}, "index": 9}, "ambr": {"downlink": {"value": 1, "unit": 3}, "uplink": {"value": 1, "unit": 3}}, "_id": ObjectId('690b00666899d828c24e07dc'), "name": "internet", "type": 3, "pcc_rule": []}]}], "__v": 0},
   {"_id": ObjectId('694b635f5b26c0702c149f48'), "schema_version": 1, "imsi": "001010000062660", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b635f5b26c0702c149f49')}], "_id": ObjectId('694b635f5b26c0702c149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('705')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b63603d9dce88c9149f48'), "schema_version": 1, "imsi": "001010000062661", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b63603d9dce88c9149f49')}], "_id": ObjectId('694b63603d9dce88c9149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('705')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
-  {"_id": ObjectId('694b636178e8fddb16149f48'), "schema_version": 1, "imsi": "001010000062662", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b636178e8fddb16149f49')}], "_id": ObjectId('694b636178e8fddb16149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('257')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
+  {"_id": ObjectId('694b636178e8fddb16149f48'), "schema_version": 1, "imsi": "001010000062662", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b636178e8fddb16149f48')}], "_id": ObjectId('694b636178e8fddb16149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('257')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b6361fac6114f21149f48'), "schema_version": 1, "imsi": "001010000062663", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b6361fac6114f21149f49')}], "_id": ObjectId('694b6361fac6114f21149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('257')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b6362516b2f83c6149f48'), "schema_version": 1, "imsi": "001010000062664", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b6362516b2f83c6149f49')}], "_id": ObjectId('694b6362516b2f83c6149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('193')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b63634b409217f8149f48'), "schema_version": 1, "imsi": "001010000062665", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b63634b409217f8149f49')}], "_id": ObjectId('694b63634b409217f8149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('193')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
@@ -73,7 +73,7 @@ db.subscribers.insertMany([
   {"_id": ObjectId('694b636728ec1aa47a149f48'), "schema_version": 1, "imsi": "001010000062672", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b636728ec1aa47a149f49')}], "_id": ObjectId('694b636728ec1aa47a149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('129')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b63684ba5502dae149f48'), "schema_version": 1, "imsi": "001010000062673", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b63684ba5502dae149f49')}], "_id": ObjectId('694b63684ba5502dae149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('129')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b63691d1b892a89149f48'), "schema_version": 1, "imsi": "001010000062674", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b63691d1b892a89149f49')}], "_id": ObjectId('694b63691d1b892a89149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('129')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
-  {"_id": ObjectId('694b6369ad7324d725149f48'), "schema_version": 1, "imsi": "001010000062675", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b6369ad7324d725149f49')}], "_id": ObjectId('694b6369ad7324d725149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('129')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
+  {"_id": ObjectId('694b6369ad7324d725149f48'), "schema_version": 1, "imsi": "001010000062675", "msisdn": [], "imeisv": "1234567898654321", "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b6369ad7324d725149f48')}], "_id": ObjectId('694b6369ad7324d725149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000", "sqn": NumberLong('129')}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b636ab06b9b161a149f48'), "schema_version": 1, "imsi": "001010000062676", "msisdn": [], "imeisv": [], "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b636ab06b9b161a149f49')}], "_id": ObjectId('694b636ab06b9b161a149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000"}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b636be75389d67b149f48'), "schema_version": 1, "imsi": "001010000062677", "msisdn": [], "imeisv": [], "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b636be75389d67b149f49')}], "_id": ObjectId('694b636be75389d67b149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000"}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
   {"_id": ObjectId('694b636b0d1c6f08f9149f48'), "schema_version": 1, "imsi": "001010000062678", "msisdn": [], "imeisv": [], "mme_host": [], "mm_realm": [], "purge_flag": [], "slice": [{"sst": 1, "default_indicator": true, "session": [{"name": "internet", "type": 3, "qos": {"index": 9, "arp": {"priority_level": 8, "pre_emption_capability": 1, "pre_emption_vulnerability": 2}}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "pcc_rule": [], "_id": ObjectId('694b636b0d1c6f08f9149f49')}], "_id": ObjectId('694b636b0d1c6f08f9149f4a')}], "security": {"k": "8baf473f2f8fd09487cccbd7097c6862", "op": null, "opc": "8e27b6af0e692e750f32667a3b14605d", "amf": "8000"}, "ambr": {"downlink": {"value": 1000000000, "unit": 0}, "uplink": {"value": 1000000000, "unit": 0}}, "access_restriction_data": 32, "network_access_mode": 0, "subscriber_status": 0, "operator_determined_barring": 0, "subscribed_rau_tau_timer": 12, "__v": 0},
@@ -104,21 +104,43 @@ mongosh open5gs "$BASE_DIR/init_open5gs_db.js"
 rm "$BASE_DIR/init_open5gs_db.js"
 
 # 3. Build and install libyaml from source
-wget http://pyyaml.org/download/libyaml/yaml-0.1.7.tar.gz
-tar xf yaml-0.1.7.tar.gz
+if [ ! -d "yaml-0.1.7" ]; then
+  wget http://pyyaml.org/download/libyaml/yaml-0.1.7.tar.gz
+  tar xf yaml-0.1.7.tar.gz
+fi
 cd yaml-0.1.7/
-./configure --prefix=/usr --disable-static && make
-echo "$PASSWORD" | sudo -S make install
+if [ ! -f "Makefile" ]; then
+  ./configure --prefix=/usr --disable-static
+fi
+make
+echo "$PASS" | sudo -S make install
 cd ..
 
 # 4. Clone and build Open5GS
+cd "$BASE_DIR"
 if [ ! -d "open5gs" ]; then
   git clone https://github.com/open5gs/open5gs
 fi
 cd open5gs
 git checkout 10b161fbb9dd81c63a29caa9d599fc50edb64e27
-meson build --prefix=`pwd`/install
+if [ ! -d "build" ]; then
+  meson build --prefix=`pwd`/install
+fi
 ninja -C build
+
+# 5. Install NVM, Node.js v16.20.2, and WebUI dependencies
+echo "Installing NVM, Node.js v16.20.2, and building WebUI..."
+if [ ! -d "$HOME/.nvm" ]; then
+  curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+fi
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+nvm install 16.20.2
+nvm use 16.20.2
+
+cd "$BASE_DIR/open5gs/webui"
+npm ci
 
 echo ""
 echo "Open5GS Installation finished."

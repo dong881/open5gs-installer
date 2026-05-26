@@ -49,7 +49,7 @@ mme:
 
   s1ap:
     server:
-      - address: 127.0.0.2
+      - address: @NODE_IP@
   gtpc:
     server:
       - address: 127.0.0.2
@@ -91,7 +91,7 @@ sgwc:
       - address: 127.0.0.3
     client:
       sgwu:
-        - address: 127.0.0.6
+        - address: @NODE_IP@
 
 smf:
   sbi:
@@ -157,7 +157,6 @@ amf:
   ngap:
     server:
       - address: @NODE_IP@
-        port: 38412
   metrics:
     server:
       - address: 127.0.0.5
@@ -195,10 +194,10 @@ amf:
 sgwu:
   pfcp:
     server:
-      - address: 127.0.0.6
+      - address: @NODE_IP@
   gtpu:
     server:
-      - address: 127.0.0.6
+      - address: @NODE_IP@
 
 upf:
   pfcp:
@@ -214,7 +213,7 @@ upf:
       gateway: 2001:db8:cafe::1
   metrics:
     server:
-      - address: 127.0.0.7
+      - address: @NODE_IP@
         port: 9090
 
 hss:
@@ -282,10 +281,10 @@ udm:
   hnet:
     - id: 1
       scheme: 1
-      key: @BASE_DIR@/open5gs/configs/open5gs/hnet/curve25519-1.key
+      key: @BASE_DIR@/open5gs/build/configs/open5gs/hnet/curve25519-1.key
     - id: 2
       scheme: 2
-      key: @BASE_DIR@/open5gs/configs/open5gs/hnet/secp256r1-2.key
+      key: @BASE_DIR@/open5gs/build/configs/open5gs/hnet/secp256r1-2.key
   sbi:
     server:
       - address: 127.0.0.12
@@ -319,6 +318,7 @@ nssf:
         - uri: http://127.0.0.10:7777
           s_nssai:
             sst: 1
+            sd: 010203
 bsf:
   sbi:
     server:

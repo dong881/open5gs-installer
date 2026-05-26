@@ -39,10 +39,18 @@ if [ -z "${VNF_VI_IP:-}" ]; then
   fi
 fi
 
-echo "=== 🛑 1. Stopping Open5GS processes ==="
+echo "=== 🛑 1. Stopping Open5GS and WebUI processes ==="
 echo "$PASS" | sudo -S pkill -f 'open5gs-' 2>/dev/null || true
 echo "$PASS" | sudo -S pkill -f 'screen.*open5gs' 2>/dev/null || true
-echo "  > Open5GS processes shut down"
+echo "$PASS" | sudo -S pkill -f 'npm run dev' 2>/dev/null || true
+echo "$PASS" | sudo -S pkill -f 'node.*webui' 2>/dev/null || true
+
+screen -X -S webui quit 2>/dev/null || true
+for s in nrf scp udr udm ausf pcf bsf nssf amf smf upf; do
+  screen -X -S "${s}" quit 2>/dev/null || true
+done
+
+echo "  > Open5GS and WebUI processes shut down"
 
 echo "=== 🧹 2. Cleaning up virtual network cards & routing ==="
 echo "  > Removing NAT forwarding rules..."

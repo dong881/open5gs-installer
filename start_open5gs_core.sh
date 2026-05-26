@@ -7,10 +7,28 @@ set -euo pipefail
 # Sudo password to execute network configuration commands
 PASS="bmwlab"
 
+# Mode of Open5GS: "local" or "external"
+# "local": Uses standard loopback (127.0.0.x) for all components. No virtual IP is created on physical link.
+# "external": MME, AMF, SGWU, and UPF use physical IP. Automatically creates a virtual IP for gNB link.
+MODE="${1:-local}"
+
+if [ "$MODE" != "local" ] && [ "$MODE" != "external" ]; then
+  echo "Usage: $0 [local|external]"
+  exit 1
+fi
+
 # Define Base Directory (dynamically gets the script's directory)
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "=== 🚀 Starting Open5GS Core Network Setup ==="
+# Check if Open5GS binaries exist before starting
+if [ ! -f "$BASE_DIR/open5gs/build/src/nrf/open5gs-nrfd" ]; then
+  echo "❌ Error: Open5GS binaries not found!"
+  echo "Please compile Open5GS first by running:"
+  echo "  ./install_open5gs.sh"
+  exit 1
+fi
+
+echo "=== 🚀 Starting Open5GS Core Network Setup (Mode: $MODE) ==="
 
 # Auto-detect interface with default gateway (connected to internet/external gateway)
 AUTO_INF=$(ip route | grep '^default' | awk '{print $5}' | head -n1)
@@ -49,21 +67,30 @@ echo "Primary node IP:         $NODE_IP"
 echo "VNF Virtual IP:          $VNF_VI_IP"
 echo "Base Directory:          $BASE_DIR"
 
-# Generate actual config file from template using dynamic variables
-echo "Generating all_open5gs.yaml config file..."
-sed -e "s|@BASE_DIR@|$BASE_DIR|g" -e "s|@NODE_IP@|$NODE_IP|g" "$BASE_DIR/all_open5gs.yaml.template" > "$BASE_DIR/all_open5gs.yaml"
+# Generate actual config file from template based on MODE
+if [ "$MODE" = "external" ]; then
+  echo "Generating all_open5gs.yaml config file from EXTERNAL template..."
+  sed -e "s|@BASE_DIR@|$BASE_DIR|g" -e "s|@NODE_IP@|$NODE_IP|g" "$BASE_DIR/all_open5gs_external.yaml.template" > "$BASE_DIR/all_open5gs.yaml"
+else
+  echo "Generating all_open5gs.yaml config file from LOCAL template..."
+  sed -e "s|@BASE_DIR@|$BASE_DIR|g" "$BASE_DIR/all_open5gs_local.yaml.template" > "$BASE_DIR/all_open5gs.yaml"
+fi
 
 echo "1. Cleaning up old virtual network cards and namespaces"
 echo "$PASS" | sudo -S ip link delete ogstun 2>/dev/null || true
 echo "$PASS" | sudo -S ip link delete vrf-ogs 2>/dev/null || true
 echo "$PASS" | sudo -S ip netns delete core-ns 2>/dev/null || true
 
-echo "2. Setting up virtual IP on VNF (${VNF_VI_IP})"
-if ! ip addr show "${INF}" | grep -q "${VNF_VI_IP}"; then
-  echo "$PASS" | sudo -S ip addr add "${VNF_VI_IP}/24" dev "${INF}"
-  echo "  > Virtual IP: ${VNF_VI_IP} added to ${INF}"
+if [ "$MODE" = "external" ]; then
+  echo "2. Setting up virtual IP on VNF (${VNF_VI_IP}) for gNB"
+  if ! ip addr show "${INF}" | grep -q "${VNF_VI_IP}"; then
+    echo "$PASS" | sudo -S ip addr add "${VNF_VI_IP}/24" dev "${INF}"
+    echo "  > Virtual IP: ${VNF_VI_IP} added to ${INF}"
+  else
+    echo "  > Virtual IP: ${VNF_VI_IP} already exists"
+  fi
 else
-  echo "  > Virtual IP: ${VNF_VI_IP} already exists"
+  echo "2. Skipping virtual IP setup (Local/Loopback mode)"
 fi
 
 echo "3. Creating Open5GS TUN virtual interface (ogstun)"
@@ -92,4 +119,13 @@ done
 echo "$PASS" | sudo -S screen -L -Logfile "$BASE_DIR/open5gs_logs/upf.log" -S upf -d -m bash -lc "sudo $BASE_DIR/open5gs/build/src/upf/open5gs-upfd -c $BASE_DIR/all_open5gs.yaml"
 
 echo "Open5GS NFs started in background screen sessions."
+
+# 6. Start WebUI in screen
+echo "6. Starting Open5GS WebUI in screen..."
+WEBUI_HOST="127.0.0.1"
+if [ "$MODE" = "external" ]; then
+  WEBUI_HOST="0.0.0.0"
+fi
+screen -S webui -d -m bash -lc "export NVM_DIR=\"\$HOME/.nvm\"; [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"; nvm use 16.20.2; cd \"$BASE_DIR/open5gs/webui\"; HOSTNAME=$WEBUI_HOST npm run dev"
+
 echo "=== ✅ Open5GS Core Startup Finished ==="
