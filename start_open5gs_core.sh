@@ -7,6 +7,17 @@ set -euo pipefail
 # Sudo password to execute network configuration commands
 PASS="bmwlab"
 
+# Prompt for sudo password if the default one is incorrect
+if ! echo "$PASS" | sudo -S true 2>/dev/null; then
+  if [ -t 0 ]; then
+    read -rs -p "[sudo] password for $USER: " PASS
+    echo ""
+  else
+    echo "❌ Error: sudo authentication failed and terminal is non-interactive."
+    exit 1
+  fi
+fi
+
 # Mode of Open5GS: "local" or "external"
 # "local": Uses standard loopback (127.0.0.x) for all components. No virtual IP is created on physical link.
 # "external": MME, AMF, SGWU, and UPF use physical IP. Automatically creates a virtual IP for gNB link.
