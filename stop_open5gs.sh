@@ -51,7 +51,7 @@ if [ -z "${VNF_VI_IP:-}" ]; then
 fi
 
 echo "=== 🛑 1. Stopping Open5GS and WebUI processes ==="
-echo "$PASS" | sudo -S pkill -f 'open5gs-' 2>/dev/null || true
+echo "$PASS" | sudo -S pkill '^open5gs-' 2>/dev/null || true
 echo "$PASS" | sudo -S pkill -f 'screen.*open5gs' 2>/dev/null || true
 echo "$PASS" | sudo -S pkill -f 'npm run dev' 2>/dev/null || true
 echo "$PASS" | sudo -S pkill -f 'node.*webui' 2>/dev/null || true

@@ -24,9 +24,11 @@ fi
 MODE="${1:-local}"
 
 if [ "$MODE" != "local" ] && [ "$MODE" != "external" ]; then
-  echo "Usage: $0 [local|external]"
+  echo "Usage: $0 [local|external] [cpu_list]"
   exit 1
 fi
+
+CPUS="${2:-${CPUS:-}}"
 
 # Define Base Directory (dynamically gets the script's directory)
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -143,5 +145,21 @@ if [ "$MODE" = "external" ]; then
   WEBUI_HOST="0.0.0.0"
 fi
 screen -S webui -d -m bash -lc "export NVM_DIR=\"\$HOME/.nvm\"; [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"; nvm use 16.20.2; cd \"$BASE_DIR/open5gs/webui\"; HOSTNAME=$WEBUI_HOST npm run dev"
+
+# 7. Set CPU Affinity if CPUS parameter is provided
+if [ -n "$CPUS" ]; then
+  echo "7. Setting CPU affinity to $CPUS..."
+  # Sleep a brief moment to ensure all processes have spun up
+  sleep 1
+  PIDS=$(pgrep '^open5gs-' || true)
+  if [ -n "$PIDS" ]; then
+    for pid in $PIDS; do
+      echo "$PASS" | sudo -S taskset -cp "$CPUS" "$pid" >/dev/null || true
+    done
+    echo "  > CPU affinity set to $CPUS for open5gs processes"
+  else
+    echo "  > No open5gs processes found to set CPU affinity"
+  fi
+fi
 
 echo "=== ✅ Open5GS Core Startup Finished ==="
