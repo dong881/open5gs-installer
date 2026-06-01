@@ -4,6 +4,14 @@ set -euo pipefail
 # Define Base Directory
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Validate Mode Argument
+MODE="${1:-local}"
+if [ "$MODE" != "local" ] && [ "$MODE" != "external" ]; then
+  echo "❌ Error: Invalid mode '$MODE'."
+  echo "Usage: $0 [local|external] [cpu_list]"
+  exit 1
+fi
+
 echo "=========================================="
 echo "      🔄 Restarting Open5GS Core Network"
 echo "=========================================="
